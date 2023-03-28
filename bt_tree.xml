@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <ReactiveFallback>
+        <CheckEndReached name="check_end_reached"/>
+        <CrawlForward name="crawl_forward"
+                      _description="This is a comment on the tree"/>
+      </ReactiveFallback>
+      <Sequence name="Measure Tether">
+        <PullTether name="pull_tether"/>
+        <ReactiveSequence>
+          <TetherTaught name="tether_is_taught"/>
+          <StopTether name="stop_tether"/>
+        </ReactiveSequence>
+      </Sequence>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="CheckEndReached"
+            editable="true"/>
+    <Action ID="CrawlForward"
+            editable="true"/>
+    <Action ID="PullTether"
+            editable="true"/>
+    <Action ID="StopTether"
+            editable="true"/>
+    <Action ID="TetherTaught"
+            editable="true"/>
+  </TreeNodesModel>
+
+</root>
