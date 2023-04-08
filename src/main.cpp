@@ -1,7 +1,8 @@
 #include <iostream>
 #include "behaviortree_cpp/bt_factory.h"
 #include "behaviortree_cpp/action_node.h"
-#include "check_end_reached.h"
+#include "check_position.h"
+#include "bt_status.h"
 #include "Ros.h"
 
 using namespace std::chrono_literals;
@@ -13,8 +14,8 @@ BT::NodeStatus CrawlForward(){
     return BT::NodeStatus::RUNNING;
 }
 
-BT::NodeStatus TetherTaught(){
-    std::cout << "Waiting til tether is taught" << std::endl;
+BT::NodeStatus RunningWhileFalse(){
+    std::cout << "RunningWhileFalse, input now" << std::endl;
     int reached_end;
     std::cin >> reached_end;
     if (std::cin.fail())
@@ -23,68 +24,28 @@ BT::NodeStatus TetherTaught(){
         throw "Sorry, no negative numbers. Try something else? ";
 
     if (reached_end){
-        std::cout << "Tether Taught!" << std::endl;
+        std::cout << "reached end!" << std::endl;
         return BT::NodeStatus::SUCCESS;
     } else {
-        std::cout << "Tether Not Taught" << std::endl;
+        std::cout << "not reached end yet, running" << std::endl;
         return BT::NodeStatus::RUNNING;
     }    
 }
-
-BT::NodeStatus TakeMeasurement(){
-    std::cout << "Waiting til tether is taught" << std::endl;
-    int reached_end;
-    std::cin >> reached_end;
-    if (std::cin.fail())
-        throw "Sorry, I don't think that's a number?";
-    if (reached_end < 0)
-        throw "Sorry, no negative numbers. Try something else? ";
-
-    if (reached_end){
-        std::cout << "Tether Taught!" << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    } else {
-        std::cout << "Tether Not Taught" << std::endl;
-        return BT::NodeStatus::RUNNING;
-    }    
-}
-
-//NODES AS MEMBER FUNCTIONS
-class Tether{
-    public:
-    Tether(){
-    }
-    BT::NodeStatus pullTether(){
-        std::cout << "Pulling Reel "<< std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-
-    BT::NodeStatus stopTether(){
-        std::cout << "Stopping Reel" << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
 
 int main(int argc, char** argv){
     BT::BehaviorTreeFactory factory;
-
-    factory.registerNodeType<CheckEndReached>("CheckEndReached");
-    factory.registerSimpleCondition("CrawlForward", std::bind(CrawlForward));
-    factory.registerSimpleCondition("TetherTaught", std::bind(TetherTaught));
-    Tether tether;
-
-    factory.registerSimpleAction(
-        "PullTether",
-        std::bind(&Tether::pullTether, &tether));
-
-    factory.registerSimpleAction(
-        "StopTether",
-        std::bind(&Tether::stopTether, &tether));
-
-    auto tree = factory.createTreeFromFile("./../bt_tree.xml");
-
-    // tree.tickOnce();
-    Ros Ros(argc, argv, "behavior_tree");
+    Ros ros(argc, argv, "behavior_tree");
+    factory.registerNodeType<OutputCrawlerPosition>("OutputCrawlerPosition");
+    factory.registerNodeType<PublishBtStatus>("LogThisBranchName"); // Change individual Branch Name in XML  
+    factory.registerSimpleCondition("CheckEndReached",std::bind(RunningWhileFalse));
+    // factory.registerSimpleCondition("TetherTaught", std::bind(&Ros::TetherIsTaught, &ros));
+    factory.registerSimpleCondition("TetherTaught", std::bind(RunningWhileFalse));
+    factory.registerSimpleAction("CrawlForward", std::bind(&Ros::CrawlForward, &ros));
+    factory.registerSimpleAction("PullTether", std::bind(&Ros::pullTether, &ros));
+    factory.registerSimpleAction("StopReel",std::bind(&Ros::stopReel, &ros));
+    // auto tree = factory.createTreeFromFile("./../bt_tree.xml");
+    auto tree = factory.createTreeFromFile("/home/josue/ros2_ws/src/lgs_bt/bt_tree.xml");
+    ros.spinOnBackground();
     tree.tickWhileRunning();
     std::cout << "Inspection successful" << std::endl;
     return 0;

@@ -4,11 +4,15 @@
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
         <Action ID="CheckBattery" editable="true"/>
+        <Action ID="CheckCrawlerPosition" editable="true"/>
         <Action ID="CheckEndReached" editable="true"/>
         <Action ID="CloseGripper" editable="true"/>
         <Action ID="CrawlForward" editable="true"/>
+        <Action ID="LogThisBranchName" editable="true"/>
         <Action ID="OpenGripper" editable="true"/>
+        <Action ID="OutputCrawlerPosition" editable="true"/>
         <Action ID="PullTether" editable="true"/>
+        <Action ID="StopReel" editable="true"/>
         <Action ID="StopTether" editable="true"/>
         <Action ID="TetherTaught" editable="true"/>
     </TreeNodesModel>

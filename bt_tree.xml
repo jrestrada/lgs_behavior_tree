@@ -2,18 +2,26 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="MainTree">
     <Sequence>
-      <ReactiveFallback>
+      <LogThisBranchName name="Log: Inspection"/>
+      <ReactiveFallback name="CrawlUntilEnd">
+        <Inverter name="Continue Fallback">
+          <LogThisBranchName name="Log: Final Crawl"/>
+        </Inverter>
         <CheckEndReached name="check_end_reached"/>
         <CrawlForward name="crawl_forward"
                       _description="This is a comment on the tree"/>
       </ReactiveFallback>
-      <Sequence name="Measure Tether">
-        <PullTether name="pull_tether"/>
-        <ReactiveSequence>
-          <TetherTaught name="tether_is_taught"/>
-          <StopTether name="stop_tether"/>
-        </ReactiveSequence>
-      </Sequence>
+      <Delay delay_msec="10,000">
+        <Sequence name="Measure Tether">
+          <LogThisBranchName name="Log: Measuring Tether"/>
+          <PullTether name="pull_tether"/>
+          <ReactiveSequence>
+            <TetherTaught name="tether_is_taught"/>
+            <StopReel name="stop_reel"/>
+          </ReactiveSequence>
+          <OutputCrawlerPosition/>
+        </Sequence>
+      </Delay>
     </Sequence>
   </BehaviorTree>
 
@@ -23,9 +31,13 @@
             editable="true"/>
     <Action ID="CrawlForward"
             editable="true"/>
+    <Action ID="LogThisBranchName"
+            editable="true"/>
+    <Action ID="OutputCrawlerPosition"
+            editable="true"/>
     <Action ID="PullTether"
             editable="true"/>
-    <Action ID="StopTether"
+    <Action ID="StopReel"
             editable="true"/>
     <Action ID="TetherTaught"
             editable="true"/>

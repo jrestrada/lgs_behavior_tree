@@ -9,11 +9,12 @@ endif()
 # find dependencies
 find_package(rclcpp REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(behaviortree_cpp)
 find_package(Threads REQUIRED)
 
 add_executable(behavior_tree 
-  src/check_end_reached.h
   src/main.cpp
   src/Ros.cpp
 )
@@ -23,11 +24,11 @@ target_include_directories(behavior_tree PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_compile_features(behavior_tree PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-
 # ROS
 ament_target_dependencies(behavior_tree
   rclcpp 
   std_msgs 
+  sensor_msgs 
 )
 
 install(TARGETS behavior_tree
@@ -37,7 +38,6 @@ target_link_libraries(behavior_tree
   BT::behaviortree_cpp
   Threads::Threads
 ) 
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
