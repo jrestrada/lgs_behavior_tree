@@ -1,43 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="MainTree">
-    <Sequence>
-      <LogThisBranchName name="Log: Inspection"/>
-      <ReactiveFallback name="CrawlUntilEnd">
-        <Inverter name="Continue Fallback">
-          <LogThisBranchName name="Log: Final Crawl"/>
-        </Inverter>
-        <CheckEndReached name="check_end_reached"/>
-        <CrawlForward name="crawl_forward"
-                      _description="This is a comment on the tree"/>
-      </ReactiveFallback>
-      <Delay delay_msec="10,000">
-        <Sequence name="Measure Tether">
-          <LogThisBranchName name="Log: Measuring Tether"/>
-          <PullTether name="pull_tether"/>
+    <Fallback>
+      <Sequence name="Main Inspection Sequence">
+        <LogThisBranchName name="Log: Inspection"/>
+        <FrontIsConnected name="check_connection"/>
+        <Sequence name="Crawl Top Elbow">
+          <LogThisBranchName name="Log: Top Elbow"/>
+          <RequestActuation name="crawl_forward"
+                            _description="the name of this node will be published as an lgs_actuation_request
+                         begin the name with ampersand to have it return RUNNING, (continuous actions for behavior tree)"/>
           <ReactiveSequence>
-            <TetherTaught name="tether_is_taught"/>
-            <StopReel name="stop_reel"/>
+            <KeepRunningUntilFailure>
+              <Inverter>
+                <IsVertical/>
+              </Inverter>
+            </KeepRunningUntilFailure>
+            <FrontIsConnected name="check_connection"/>
+            <RequestActuation name="stop_crawl"
+                              _description="the name of this node will be published as an lgs_actuation_request
+                         begin the name with ampersand to have it return RUNNING, (continuous actions for behavior tree)"/>
           </ReactiveSequence>
-          <OutputCrawlerPosition/>
         </Sequence>
-      </Delay>
-    </Sequence>
+        <ReactiveFallback name="CrawlUntilEnd">
+          <Inverter name="Continue Fallback">
+            <LogThisBranchName name="Log: Final Crawl"/>
+          </Inverter>
+          <CheckEndReached name="check_end_reached"/>
+          <RequestActuation name="&amp;crawl_forward"
+                            _description="the name of this node will be published as an lgs_actuation_request
+                         begin the name with ampersand to have it return RUNNING, (continuous actions for behavior tree)"/>
+        </ReactiveFallback>
+        <RequestActuation name="stop_crawl"
+                          _description="the name of this node will be published as an lgs_actuation_request
+                         begin the name with ampersand to have it return RUNNING, (continuous actions for behavior tree)"/>
+        <Delay delay_msec="10,000">
+          <Sequence name="Measure Tether">
+            <LogThisBranchName name="Log: Measuring Tether"/>
+            <RequestActuation name="pull_tether"
+                              _description="The name of this node will be published as an lgs_actuation_request
+Begin the name with ampersand to have it return RUNNING instead of SUCCESS"/>
+            <ReactiveSequence>
+              <TetherTaught name="tether_is_taught"/>
+              <RequestActuation name="stop_reel"
+                                _description="the name of this node will be published as an lgs_actuation_request
+                         begin the name with ampersand to have it return RUNNING, (continuous actions for behavior tree)"/>
+            </ReactiveSequence>
+            <OutputCrawlerPosition/>
+          </Sequence>
+        </Delay>
+      </Sequence>
+      <Sequence>
+        <LogThisBranchName name="Log: Retrieving Crawler"/>
+        <RequestActuation name="pull_tether"
+                          _description="The name of this node will be published as an lgs_actuation_request
+Begin the name with ampersand to have it return RUNNING instead of SUCCESS"/>
+      </Sequence>
+    </Fallback>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
     <Action ID="CheckEndReached"
             editable="true"/>
-    <Action ID="CrawlForward"
+    <Action ID="FrontIsConnected"
+            editable="true"/>
+    <Action ID="IsVertical"
             editable="true"/>
     <Action ID="LogThisBranchName"
             editable="true"/>
     <Action ID="OutputCrawlerPosition"
             editable="true"/>
-    <Action ID="PullTether"
-            editable="true"/>
-    <Action ID="StopReel"
+    <Action ID="RequestActuation"
             editable="true"/>
     <Action ID="TetherTaught"
             editable="true"/>

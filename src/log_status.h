@@ -1,5 +1,5 @@
-#ifndef BT_STATUS_PUBLISHER
-#define BT_STATUS_PUBLISHER
+#ifndef LOG_BT_STATUS_H
+#define LOG_BT_STATUS_H
 
 #include "behaviortree_cpp/action_node.h"
 #include "Ros.h"
@@ -15,4 +15,4 @@ class PublishBtStatus : public BT::SyncActionNode{
     }
 };
 
-#endif // BT_STATUS_PUBLISHER
+#endif // LOG_BT_STATUS_H
