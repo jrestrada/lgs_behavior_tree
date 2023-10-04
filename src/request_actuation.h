@@ -14,22 +14,38 @@ class RequestActuation : public BT::ActionNodeBase{
     static BT::PortsList providedPorts(){
         return { BT::InputPort<int>("Input")};
     }
+
     BT::NodeStatus tick() override{
         if (first_tick){
             if (name().find("&") != std::string::npos){
                 continuous = true;
             }
             first_tick = false;
-        Ros::instance()->publishActuationRequest(name());
+            if (continuous) {
+                current_cmd = name().substr(1,*name().end()-1);
+            } else {
+                current_cmd = name();
+            }
+            Ros::instance()->publishActuationRequest(current_cmd);
+            Ros::instance()->m_continue = false;
+            if (name() != "continue"){
+                Ros::instance()->set_command(current_cmd);
+            }
+        } else {
+            if (name() == "continue" && Ros::instance()->m_continue){
+                Ros::instance()->publishActuationRequest(Ros::instance()->current_cmd());
+                // Ros::instance()->m_continue = false;
+                return BT::NodeStatus::SUCCESS;
+            }
         }
-        // if (!continuous) Ros::instance()->publishActuationRequest(name());
         return continuous ? BT::NodeStatus::RUNNING : BT::NodeStatus::SUCCESS;
+        // return BT::NodeStatus::SUCCESS;
     }
-
     void halt() override{}
     private: 
     bool first_tick;
     bool continuous;
+    std::string current_cmd;
 };
 
 #endif // REQUESTACTUATION_H

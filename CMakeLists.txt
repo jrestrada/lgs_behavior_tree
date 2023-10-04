@@ -34,6 +34,15 @@ ament_target_dependencies(behavior_tree
 install(TARGETS behavior_tree
   DESTINATION lib/${PROJECT_NAME})
 
+install(PROGRAMS
+  launch/launch.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+launch
+DESTINATION share/${PROJECT_NAME})
+
 target_link_libraries(behavior_tree
   BT::behaviortree_cpp
   Threads::Threads
